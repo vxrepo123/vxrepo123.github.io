@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repo Support</title>
+<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-title" content="Repo Support" />
+<link rel="manifest" href="/site.webmanifest" />
+
+<style>
+:root {
+  --color-bg-primary: #0a0f1c;
+  --color-bg-secondary: #0f172a;
+  --color-bg-tertiary: #111c33;
+
+  --color-accent-primary: #3b82f6;
+  --color-accent-secondary: #22d3ee;
+  --color-accent-glow: rgba(59, 130, 246, 0.5);
+
+  --color-text-primary: #e5e7eb;
+  --color-text-secondary: #9ca3af;
+
+  --color-border: rgba(148, 163, 184, 0.15);
+  --color-card-bg: rgba(15, 23, 42, 0.6);
+
+  --radius-lg: 16px;
+
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 20px var(--color-accent-glow);
+
+  --transition: 0.3s ease;
+
+  --bg-gradient:
+    radial-gradient(circle at 20% 30%, rgba(59,130,246,0.15), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(34,211,238,0.12), transparent 40%),
+    linear-gradient(180deg, #0a0f1c 0%, #020617 100%);
+}
+
+/* ===== BODY ===== */
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+
+  text-align: center;
+
+  background: var(--bg-gradient);
+  background-size: 200% 200%;
+  animation: bgMove 20s ease infinite;
+
+  color: var(--color-text-primary);
+  font-family: system-ui, sans-serif;
+}
+
+@keyframes bgMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ===== TITLE ===== */
+h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  background: linear-gradient(
+    90deg,
+    var(--color-accent-primary),
+    var(--color-accent-secondary)
+  );
+
+  background-clip: text;              /* ✅ standard property */
+  -webkit-background-clip: text;      /* ✅ Safari/Chrome support */
+
+  -webkit-text-fill-color: transparent;
+
+  position: relative;
+}
+
+/* glowing underline */
+h1::after {
+  content: "";
+  display: block;
+  width: 70px;
+  height: 3px;
+  margin: 10px auto 0;
+  background: linear-gradient(90deg, var(--color-accent-primary), transparent);
+  border-radius: 999px;
+}
+
+/* ===== TEXT ===== */
+p {
+  color: var(--color-text-secondary);
+  max-width: 60ch;
+}
+
+/* ===== LINKS ===== */
+a {
+  color: var(--color-accent-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-accent-secondary);
+}
+
+/* ===== INFO CARD ===== */
+.infocard {
+  width: 100%;
+  max-width: 500px;
+
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  padding: 16px;
+  box-shadow: var(--shadow-soft);
+
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+/* clickable header */
+.infocard summary {
+  cursor: pointer;
+  list-style: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.infocard summary::-webkit-details-marker {
+  display: none;
+}
+
+/* click arrow */
+.infocard summary::after {
+  content: "⌄";
+  font-size: 1.2rem;
+  color: var(--color-accent-secondary);
+  transition: transform var(--transition);
+}
+
+/* rotate arrow when open */
+.infocard[open] summary::after {
+  transform: rotate(180deg);
+}
+
+/* content animation */
+.infocard-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--transition);
+}
+
+.infocard-content > * {
+  overflow: hidden;
+}
+
+/* open state */
+.infocard[open] .infocard-content {
+  grid-template-rows: 1fr;
+  margin-top: 10px;
+}
+
+/* hover effect */
+.infocard:hover {
+  transform: translateY(-3px);
+}
+
+/* open glow */
+.infocard[open] {
+  box-shadow: var(--shadow-soft), var(--shadow-glow);
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 600px) {
+  body {
+    padding: 15px;
+  }
+
+  .infocard {
+    padding: 14px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<h1>Helpcenter</h1>
+<p>Need help with coding/workspace assistance — don’t hesitate!</p>
+
+<details class="infocard">
+  <summary><h2>Community</h2></summary>
+  <div class="infocard-content">
+    <p>Join our coding community and get help fast.</p>
+    <a href="https://discord.com/invite/coding">Discord Server</a>
+  </div>
+</details>
+
+<details class="infocard">
+  <summary><h2>What languages do we know?</h2></summary>
+  <div class="infocard-content">
+    <p>We support:</p>
+    <ul>
+      <li>HTML</li>
+      <li>CSS</li>
+      <li>JavaScript</li>
+      <li>Python</li>
+    </ul>
+  </div>
+</details>
+
+<details class="infocard">
+  <summary><h2>Contact Us</h2></summary>
+  <div class="infocard-content">
+    <p>Contact us via Discord (see Community).</p>
+  </div>
+</details>
+
+<details class="infocard">
+  <summary><h2>Report a Bug</h2></summary>
+  <div class="infocard-content">
+    <p>Found a bug? Report it on Discord.</p>
+  </div>
+</details>
+
+<details class="infocard">
+  <summary><h2>Request a Feature</h2></summary>
+  <div class="infocard-content">
+    <p>Got an idea? Share it with us.</p>
+  </div>
+</details>
+
+<details class="infocard">
+  <summary><h2>Sponsorship</h2></summary>
+  <div class="infocard-content">
+    <p>Reach out via Discord.</p>
+  </div>
+</details>
+
+</body>
+</html>
