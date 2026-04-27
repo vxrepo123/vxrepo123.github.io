@@ -195,7 +195,259 @@ a:hover {
     font-size: 2rem;
   }
 }
+
+/* ===== MODAL BACKDROP ===== */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.85);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* ===== GAME CONTAINER ===== */
+.modal-content {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 25px;
+
+  box-shadow:
+    var(--shadow-soft),
+    0 0 40px rgba(59, 130, 246, 0.15);
+
+  text-align: center;
+  animation: popIn 0.25s ease;
+}
+
+/* pop animation */
+@keyframes popIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ===== BOARD ===== */
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(70px, 90px));
+  gap: 10px;
+  margin: 20px 0;
+}
+
+/* ===== CELLS ===== */
+.cell {
+  aspect-ratio: 1 / 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 2rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+/* hover glow */
+.cell:hover {
+  background: rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 15px var(--color-accent-glow);
+  transform: scale(1.05);
+}
+
+/* when filled */
+.cell:not(:empty) {
+  cursor: default;
+  background: rgba(59, 130, 246, 0.08);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
+}
+
+/* X and O colors */
+.cell {
+  color: var(--color-accent-secondary);
+}
+
+/* ===== STATUS TEXT ===== */
+#status {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 10px;
+}
+
+/* ===== BUTTONS ===== */
+.modal-content button {
+  margin: 5px;
+  padding: 8px 14px;
+
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
+
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+/* hover effect */
+.modal-content button:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 10px var(--color-accent-glow);
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 500px) {
+  .board {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .modal-content {
+    width: 90%;
+    padding: 20px;
+  }
+}
+
+#openGame {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
 </style>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const modal = document.getElementById("gameModal");
+  const boardEl = document.getElementById("board");
+  const statusText = document.getElementById("status");
+  const openBtn = document.getElementById("openGame");
+
+  let board = ["", "", "", "", "", "", "", "", ""];
+  let gameActive = true;
+
+  openBtn.onclick = () => {
+    modal.style.display = "flex";
+    initBoard();
+  };
+
+  window.closeGame = function () {
+    modal.style.display = "none";
+  };
+
+  function initBoard() {
+    boardEl.innerHTML = "";
+    board = ["", "", "", "", "", "", "", "", ""];
+    gameActive = true;
+    statusText.textContent = "Your turn";
+
+    board.forEach((_, i) => {
+      const cell = document.createElement("div");
+      cell.classList.add("cell");
+      cell.onclick = () => handleMove(i);
+      boardEl.appendChild(cell);
+    });
+  }
+
+  function handleMove(index) {
+    if (!gameActive || board[index]) return;
+
+    board[index] = "X";
+    render();
+
+    if (checkWin("X")) {
+      statusText.textContent = "You win!";
+      gameActive = false;
+      return;
+    }
+
+    aiMove(); // ✅ now correctly called
+  }
+
+  function aiMove() {
+    let move = findBestMove("O");
+
+    if (move === null) {
+      move = findBestMove("X");
+    }
+
+    if (move === null) {
+      let empty = board
+        .map((v, i) => (v === "" ? i : null))
+        .filter(v => v !== null);
+
+      move = empty[Math.floor(Math.random() * empty.length)];
+    }
+
+    board[move] = "O";
+    render();
+
+    if (checkWin("O")) {
+      statusText.textContent = "AI wins!";
+      gameActive = false;
+    }
+  }
+
+  function findBestMove(player) {
+    const wins = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+
+    for (let combo of wins) {
+      let [a, b, c] = combo;
+      let values = [board[a], board[b], board[c]];
+
+      if (
+        values.filter(v => v === player).length === 2 &&
+        values.includes("")
+      ) {
+        return combo[values.indexOf("")];
+      }
+    }
+
+    return null;
+  }
+
+  function render() {
+    [...boardEl.children].forEach((cell, i) => {
+      cell.textContent = board[i];
+    });
+  }
+
+  function checkWin(p) {
+    const wins = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+    return wins.some(combo => combo.every(i => board[i] === p));
+  }
+
+  window.resetGame = function () {
+    initBoard();
+  };
+
+});
+
+</script>
 </head>
 
 <body>
@@ -251,6 +503,18 @@ a:hover {
     <p>Reach out via Discord.</p>
   </div>
 </details>
+
+<button id="openGame">Play Tic Tac Toe</button>
+
+<div id="gameModal" class="modal">
+  <div class="modal-content">
+    <h2>Tic Tac Toe</h2>
+    <div id="board" class="board"></div>
+    <p id="status"></p>
+    <button onclick="resetGame()">Restart</button>
+    <button onclick="closeGame()">Close</button>
+  </div>
+</div>
 
 </body>
 </html>
